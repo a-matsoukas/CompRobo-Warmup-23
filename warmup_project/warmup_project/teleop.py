@@ -5,6 +5,7 @@ import tty
 import select
 import sys
 import termios
+from math import pi
 
 
 class TeleopNode(Node):
@@ -28,8 +29,8 @@ class TeleopNode(Node):
             self.key = self.getKey()
             direction = Twist()
 
-            # Go back and refine speeds for smoother/faster turns
-            # make sure to calculate max angular velocity
+            # based on a wheel diameter of .2m, and a max wheel velocity of .3 m/s,
+            # the max angular velocity is 6pi rad/sec
             if self.key in ['i', 'k', ',', 'j', 'l', 'u', 'o', 'm', '.']:
                 if self.key == 'i':
                     direction.linear.x = 0.3
@@ -38,21 +39,21 @@ class TeleopNode(Node):
                 elif self.key == ',':
                     direction.linear.x = -0.3
                 elif self.key == 'j':
-                    direction.angular.z = 0.3
+                    direction.angular.z = 0.5 * pi
                 elif self.key == 'l':
-                    direction.angular.z = -0.3
+                    direction.angular.z = -0.5 * pi
                 elif self.key == 'u':
                     direction.linear.x = 0.3
-                    direction.angular.z = 0.3
+                    direction.angular.z = 0.5 * pi
                 elif self.key == 'o':
                     direction.linear.x = 0.3
-                    direction.angular.z = -0.3
+                    direction.angular.z = -0.5 * pi
                 elif self.key == 'm':
                     direction.linear.x = -0.3
-                    direction.angular.z = -0.3
+                    direction.angular.z = -0.5 * pi
                 else:
                     direction.linear.x = -0.3
-                    direction.angular.z = 0.3
+                    direction.angular.z = 0.5 * pi
 
                 self.velocity_pub.publish(direction)
 
