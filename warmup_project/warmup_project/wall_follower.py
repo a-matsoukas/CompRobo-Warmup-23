@@ -1,10 +1,10 @@
 import rclpy
 from rclpy.node import Node
 from visualization_msgs.msg import Marker
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, Point
 from sensor_msgs.msg import LaserScan
 from neato2_interfaces.msg import Bump
-from math import pi, atan, degrees
+from math import pi, atan, sin, cos, degrees, radians, isinf
 from statistics import mean
 
 
@@ -23,6 +23,8 @@ class WallFollowerNode(Node):
         self.theta1 = None
         self.base_ang_vel = pi / 4
 
+        self.wall_points_odom = []
+
         self.create_timer(.1, self.run_loop)
 
     def run_loop(self):
@@ -37,23 +39,25 @@ class WallFollowerNode(Node):
     def process_data(self, scan_data):
         # pick a few angles to calculate
         angs = [180, 185, 190, 195, 200, 205, 210, 215, 220,
-                225, 230, 235, 240, 245, 250, 255, 260, 265, 270]
+                225, 230, 235, 240, 245, 250, 255, 260, 265]
 
         res = []
         # iterate through and calculate the angle with the wall
         for ang in angs:
             x = scan_data.ranges[ang]
             y = scan_data.ranges[ang + 90]
-            if x != 0 and y != 0:
+            if x != 0 and y != 0 and not isinf(x) and not isinf(y):
                 theta = degrees(
                     atan(x / y))
                 # account for difference in angles
                 res.append(theta - 225 + ang)
-        print(res)
+                self.wall_points_odom.append(
+                    self.create_point(self.polar_to_cart(x, ang)))
+
+        print(self.wall_points_odom)
+        self.wall_vis()
         self.theta1 = None if len(res) == 0 else mean(res)
         print(self.theta1)
-
-        # publish points along the wall for visual
 
     def process_bump(self, bump_data):
         if bump_data.left_front or bump_data.right_front or bump_data.left_side or bump_data.right_side:
@@ -64,6 +68,33 @@ class WallFollowerNode(Node):
         msg.linear.x = 0.0
         msg.angular.z = 0.0
         self.velocity_pub.publish(msg)
+
+    def create_point(self, coords):
+        pt = Point()
+        pt.x = coords[0]
+        pt.y = coords[1]
+        pt.z = coords[2]
+        return pt
+
+    def wall_vis(self):
+        msg = Marker()
+        msg.header.frame_id = 'odom'
+        msg.type = 6
+        msg.scale.x = .25
+        msg.scale.y = .25
+        msg.scale.z = .25
+        msg.color.a = 1.0
+        msg.color.r = 0.0
+        msg.color.g = 1.0
+        msg.color.b = 0.0
+        msg.points = self.wall_points_odom
+        self.marker_pub.publish(msg)
+
+    def polar_to_cart(self, rad, theta):
+        x = rad * cos(radians(theta))
+        y = rad * sin(radians(theta))
+        z = 0.0
+        return [x, y, z]
 
 
 def main(args=None):
