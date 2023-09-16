@@ -4,7 +4,7 @@ from visualization_msgs.msg import Marker
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 from neato2_interfaces.msg import Bump
-from math import pi, atan, sin, cos, degrees, radians, isinf
+from math import pi, sin, cos, radians, isinf
 
 
 class PersonFollowerNode(Node):
