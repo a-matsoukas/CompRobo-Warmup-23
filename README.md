@@ -27,7 +27,9 @@ In your github repository, create a markdown file called README.md to serve as d
 
 ### Wall Following
 
-The objective of this behavior is to pilot or place the neato near a wall and to have the neato follow the wall at a fixed distance, parallel to the wall. The main tool used in this behavior was the neato's lidar sensor.
+#### Objective
+
+The objective of this behavior is to pilot or place the neato near a wall and to have the neato follow the wall at a fixed distance, parallel to the wall. The main tool used in this behavior was the neato's lidar sensor, which returns a list of 360 values, indicating how far objects are from the neato at each degree around it.
 
 #### Approach
 
@@ -39,7 +41,7 @@ The objective of this behavior is to pilot or place the neato near a wall and to
         width:60%;"
 >
     <img 
-        src="./Diagrams/wall_follower_diagram1.jpg"
+        src="./Diagrams/wall_follower_diagram.jpg"
         alt="Wall Follower Diagram"
     >
 </figure>
@@ -101,6 +103,50 @@ Each angle `φ` is calculated using the same `arctan` formula as above, at vario
 This method allows for redundancy by calculating `θ` multiple times using different data points. The neato uses the mean of the angle measurements it calculates to make its turning decisions.
 
 ### Person Following
+
+#### Objective
+
+The objective of this approach is to have the neato follow a person that enters its tracking area (below) and stay a fixed distance away from the person it is following. The main tool used in this implementation is the neato's lidar sensor.
+
+#### Approach
+
+<figure
+    style=
+        "display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width:60%;"
+>
+    <img 
+        src="./Diagrams/person_follower_diagram.jpg"
+        alt="Wall Extra Measurements"
+    >
+</figure>
+
+The neato's tracking region is defined by an angle `θ` from the neato's 0° and a radius, `r`. From the lidar scan data that the neato recieves, it only utilizes data from the angles within the specified region whose values are less than or equal to `r`.
+
+<figure
+    style=
+        "display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width:60%;"
+>
+    <img 
+        src="./Diagrams/person_follower_centroid.jpg"
+        alt="Wall Extra Measurements"
+    >
+</figure>
+
+As shown in the diagram above, the neato senses something in its tracking region. The centroid of the points is calculated in polar coordinates (radius, angle to target from the neato's 0°) and used to inform the neato's behavior. If the angle is negative, the neato will turn clockwise, and if the angle is positive, the neato will turn counterclockwise. The speed at which the neato turns is proportional to the angle. Furthermore, the neato's linear velocity is proportional to the distance to the target minus the desired following distance. Thus, if the neato gets too close to the target, or the person starts walking towards the neato, the neato will back up.
+
+#### Limitations
+
+The biggest limitation of this algorithm is what happens if there are multiple objects in its tracking region, or if a wall enters its tracking region. Due to the method of calculating the centriod, if there are two people in its tracking region, for example, it will try to follow a spot in between them. Furthermore, a wall is a dense collection of points on the lidar scan, while a person only shows up as a few points. Because of this, the neato will attempt to 'follow' a wall, if one enters its field of view. Thus, this person-follower works best in ideal conditions, but behaves very poorly otherwise.
+
+#### Tricky Decisions
+
+The toughest part of implementing this behavior was managing the issue described in the previous section. One solution I found to mitigate it a little bit was to limit the angle and radius of the tracking region, so that it doesn't pick up on extranious objects. This worked fairly decently, but also means that the person needs to be very close to the neato to be followed.
 
 ### Obstacle Avoidance
 
