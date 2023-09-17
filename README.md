@@ -19,8 +19,6 @@ In your github repository, create a markdown file called README.md to serve as d
 
 ## Behaviors
 
-- For each behavior, describe the problem at a high-level. Include any relevant diagrams that help explain your approach. Discuss your strategy at a high-level and include any tricky decisions that had to be made to realize a successful implementation.
-
 ### Robot Teleop
 
 #### Objective
