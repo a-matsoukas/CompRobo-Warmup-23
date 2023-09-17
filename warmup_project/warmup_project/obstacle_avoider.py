@@ -26,13 +26,14 @@ class ObstacleAvoiderNode(Node):
         # neato target in world frame -- to be set by program
         self.target_world = None
 
-        self.max_field_dist = 1.0
-        self.alpha = 0.5
-        self.beta = 0.01
+        self.max_field_dist = 3.0
+        self.alpha = 1.0
+        self.beta = 0.02
         self.delta_x_repel = 0.0
         self.delta_y_repel = 0.0
         self.delta_x_attract = 0.0
         self.delta_y_attract = 0.0
+        self.at_target = False
 
         self.set_vel = 0.0
         self.set_ang = 0.0
@@ -42,11 +43,11 @@ class ObstacleAvoiderNode(Node):
         self.create_timer(.1, self.run_loop)
 
     def run_loop(self):
-        if not self.estop:
+        if not self.estop and not self.at_target:
             self.set_vel, self.set_ang = self.calc_vel_and_ang()
 
             msg = Twist()
-            msg.linear.x = self.set_vel
+            msg.linear.x = min(self.set_vel, .25)
             msg.angular.z = self.base_ang_vel * (self.set_ang / 180.0)
             self.velocity_pub.publish(msg)
 
@@ -105,10 +106,18 @@ class ObstacleAvoiderNode(Node):
         self.t_ang = target_angle
 
         # update delta_x and delta_y
-        self.delta_x_attract = self.alpha * target_dis * cos(target_angle) if (
-            target_dis <= self.max_field_dist) else self.alpha * self.max_field_dist * cos(target_angle)
-        self.delta_y_attract = self.alpha * target_dis * sin(target_angle) if (
-            target_dis <= self.max_field_dist) else self.alpha * self.max_field_dist * sin(target_angle)
+        if target_dis < 0.5:
+            self.delta_x_attract = 0
+            self.delta_y_attract = 0
+            self.at_target = True
+        elif target_dis >= 0.5 and target_dis <= self.max_field_dist:
+            self.delta_x_attract = self.alpha * target_dis * cos(target_angle)
+            self.delta_y_attract = self.alpha * target_dis * sin(target_angle)
+        else:
+            self.delta_x_attract = self.alpha * \
+                self.max_field_dist * cos(target_angle)
+            self.delta_y_attract = self.alpha * \
+                self.max_field_dist * sin(target_angle)
 
     def process_bump(self, bump_data):
         if bump_data.left_front or bump_data.right_front or bump_data.left_side or bump_data.right_side:
