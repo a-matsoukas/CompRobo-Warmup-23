@@ -60,11 +60,44 @@ The biggest challenge of this behavior was determining a logical way to map beha
 
 #### Objective
 
+The goal of this behavior is to have the neato drive in a 1m x 1m square.
+
 #### Approach
+
+<figure
+    style=
+        "display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width:60%;"
+>
+    <img 
+        src="./Diagrams/drive_square_diagram.jpg"
+        alt="Wall Follower Diagram"
+    >
+</figure>
+
+The approach taken in this implementation is a timer-based approach, in which the neato either turns or travels straight for a set time based on its linear and angular velocity as shown below.
+
+```
+turn_duration = turn_angle / angular_velocity
+```
+
+```
+travel_duration = travel_distance / linear_velocity
+```
+
+The start time of a given action (turning or driving) is recorded, and the neato either turns or drives straight forward until it meets the required duration. At this point, the neato switches to the other action. In this way, the neato alternates between driving and turning.
+
+The neato knows that it has completed the square by counting the number of turns it has made. As shown in the diagram, the square has 3 turns, and the neato is programmed to not do more than 3 turns.
 
 #### Limitations
 
+There is a limitation to using timing as a method of tracking turn angle and travel distance. I found that after the first couple of turns, the neato would start getting off 90°. I think this is because the expected duration is based on ideal conditions, but the neato wheels aren't necessarily going at the exact speed they should be due to environmental factors such as friction. A way to mitigate this in a future implementation could be to track distance and turn angle based on the neato's built-in odometry.
+
 #### Tricky Decisions
+
+This implementation went fairly smoothly; there were no real tricky decisions that I came across during implementation.
 
 #### Results
 
@@ -72,17 +105,7 @@ The biggest challenge of this behavior was determining a logical way to map beha
 
 #### Objective
 
-#### Approach
-
-#### Limitations
-
-#### Tricky Decisions
-
-#### Results
-
-#### Objective
-
-The objective of this behavior is to pilot or place the neato near a wall and to have the neato follow the wall at a fixed distance, parallel to the wall. The main tool used in this behavior was the neato's lidar sensor, which returns a list of 360 values, indicating how far objects are from the neato at each degree around it.
+The objective of this behavior is to pilot or place the neato near a wall and to have the neato follow the wall at a fixed distance, parallel to the wall. The main tool used in this behavior was the neato's lidar sensor, which returns a list of 360 values, indicating how far objects are from the neato at each degree around it. The scan starts at 0°, which is directly in front of the neato, and takes measurements at 1° increments counterclockwise.
 
 #### Approach
 
@@ -124,13 +147,13 @@ Given that the neato is trying to optimize Scenario: `θ`, there are a few scena
 
 In this implementation, the neato drives at a constant linear velocity, and its angular velocity is proportional to how far `θ` is from 45°.
 
-### Limitations
+#### Limitations
 
 In general, the neato can only follow a wall that is on its right side, which means that its starting angle needs to be such that the wall is generally located on its right side. Furthermore, the neato does not respond appropriately when there is a wall directly in front of it or when there is a gap in the wall it is currently following.
 
 Both of these limitations in my implementation come from a trade-off of exploring this behavior as deeply as possible versus having time to sufficiently explore the following behaviors.
 
-### Tricky Decisions
+#### Tricky Decisions
 
 The biggest challenge I encountered with this behavior was transitioning from the simulator to real life; specifically, I did not realize how tricky it would be to get good data from the neatos lidar sensor. Because of this, I needed to build in some redundancy in my angle calculations and base it off of multiple angles as shown below.
 
