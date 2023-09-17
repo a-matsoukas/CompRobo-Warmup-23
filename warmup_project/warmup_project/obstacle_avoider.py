@@ -22,13 +22,13 @@ class ObstacleAvoiderNode(Node):
         self.estop = False
 
         # neato target in odom frame -- set by user
-        self.target_odom = [0.0, -2.0]
+        self.target_odom = [5.0, 0.0]
         # neato target in world frame -- to be set by program
         self.target_world = None
 
-        self.max_field_dist = 3.0
-        self.alpha = 1.0
-        self.beta = 0.02
+        self.max_field_dist = 2.0
+        self.alpha = .75
+        self.beta = 0.015
         self.delta_x_repel = 0.0
         self.delta_y_repel = 0.0
         self.delta_x_attract = 0.0
@@ -38,7 +38,7 @@ class ObstacleAvoiderNode(Node):
         self.set_vel = 0.0
         self.set_ang = 0.0
 
-        self.base_ang_vel = pi
+        self.base_ang_vel = pi / 1.5
 
         self.create_timer(.1, self.run_loop)
 
@@ -47,7 +47,7 @@ class ObstacleAvoiderNode(Node):
             self.set_vel, self.set_ang = self.calc_vel_and_ang()
 
             msg = Twist()
-            msg.linear.x = min(self.set_vel, .25)
+            msg.linear.x = min(self.set_vel, .1)
             msg.angular.z = self.base_ang_vel * (self.set_ang / 180.0)
             self.velocity_pub.publish(msg)
 
@@ -104,6 +104,7 @@ class ObstacleAvoiderNode(Node):
 
         self.t_dis = target_dis
         self.t_ang = target_angle
+        print("Polar Coords of Target", self.t_dis, degrees(self.t_ang))
 
         # update delta_x and delta_y
         if target_dis < 0.5:
