@@ -25,11 +25,34 @@ In your github repository, create a markdown file called README.md to serve as d
 
 #### Objective
 
+The goal of this behavior is to control the motion of the neato using keys on a keyboard in order to remotely drive the neato.
+
 #### Approach
+
+The approach taken to complete this behavior was to first collect user input from the keypad. In this implementation the characters `u`, `i`, `o`, `j`, `k`, `l`, `m`, `,`, and `.` were mapped to a corresponding motion as shown in the diagram below. If `ctrl+c` is pressed, the neato will stop taking input.
+
+<figure
+    style=
+        "display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width:60%;"
+>
+    <img 
+        src="./Diagrams/teleop_diagram.jpg"
+        alt="Wall Follower Diagram"
+    >
+</figure>
+
+Additionally, the neato will ignore any keystrokes that are not in the set listed above.
 
 #### Limitations
 
+I think the main limitation of this implementation is that the neato's linear and angular velocity is fixed by the program, and there is no way to change those parameters while the node is running. I think it would be interesting to add a feature that would allow for speeding up and slowing down the neato.
+
 #### Tricky Decisions
+
+The biggest challenge of this behavior was determining a logical way to map behaviors to keystrokes. Because the neato cannot move linearly in its `y` plane, the keystrokes corresponding to those directions turn the neato in place. All of the diagonal keystrokes drive the neato in an arc towards the corresponding direction. I think this was the most intuitive was to map the motions, and I also modeled this off of the `teleop_twist_keyboard` node.
 
 #### Results
 
