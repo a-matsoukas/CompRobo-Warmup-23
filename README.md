@@ -23,9 +23,39 @@ In your github repository, create a markdown file called README.md to serve as d
 
 ### Robot Teleop
 
+#### Objective
+
+#### Approach
+
+#### Limitations
+
+#### Tricky Decisions
+
+#### Results
+
 ### Driving in a Square
 
+#### Objective
+
+#### Approach
+
+#### Limitations
+
+#### Tricky Decisions
+
+#### Results
+
 ### Wall Following
+
+#### Objective
+
+#### Approach
+
+#### Limitations
+
+#### Tricky Decisions
+
+#### Results
 
 #### Objective
 
@@ -102,6 +132,8 @@ Each angle `φ` is calculated using the same `arctan` formula as above, at vario
 
 This method allows for redundancy by calculating `θ` multiple times using different data points. The neato uses the mean of the angle measurements it calculates to make its turning decisions.
 
+#### Results
+
 ### Person Following
 
 #### Objective
@@ -148,7 +180,19 @@ The biggest limitation of this algorithm is what happens if there are multiple o
 
 The toughest part of implementing this behavior was managing the issue described in the previous section. One solution I found to mitigate it a little bit was to limit the angle and radius of the tracking region, so that it doesn't pick up on extranious objects. This worked fairly decently, but also means that the person needs to be very close to the neato to be followed.
 
+#### Results
+
 ### Obstacle Avoidance
+
+#### Objective
+
+#### Approach
+
+#### Limitations
+
+#### Tricky Decisions
+
+#### Results
 
 ## Finite State Controller
 
