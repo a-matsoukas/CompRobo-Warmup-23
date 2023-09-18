@@ -24,7 +24,7 @@ class ObstacleAvoiderNode(Node):
         self.estop = False
 
         # neato target in odom frame -- set by user
-        self.target_odom = [0.0, -2.0]
+        self.target_odom = [3.0, 0.0]
         # neato target in world frame -- to be set by program
         self.target_world = None
 
