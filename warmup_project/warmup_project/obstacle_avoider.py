@@ -23,12 +23,13 @@ class ObstacleAvoiderNode(Node):
 
         self.estop = False
 
-        # neato target in odom frame -- set by user
-        self.target_odom = [3.0, 0.0]
+        # neato target in base_link frame -- set by user
+        self.target_base_link = [0.1, -1.5]
         # neato target in world frame -- to be set by program
         self.target_world = None
 
         self.goal_marker = Marker()
+        # this works if the odom frame lines up with world frame. Update with name of world frame
         self.goal_marker.header.frame_id = 'odom'
         self.goal_marker.type = 3
         self.goal_marker.scale.x = 0.25
@@ -101,11 +102,11 @@ class ObstacleAvoiderNode(Node):
         neato_ang = euler_from_quaternion(odom_data.pose.pose.orientation.x, odom_data.pose.pose.orientation.y,
                                           odom_data.pose.pose.orientation.z, odom_data.pose.pose.orientation.w)[2]
 
-        # if no world target, set based on goal in odom
+        # if no world target, set based on goal in base_link
         # this will allow the target to stay fixed as neato moves
         if self.target_world is None:
-            self.target_world = [(cos(neato_ang) * self.target_odom[0] - sin(neato_ang) * self.target_odom[1]) + neato_pos[0],
-                                 (sin(neato_ang) * self.target_odom[0] + cos(neato_ang) * self.target_odom[1]) + neato_pos[1]]
+            self.target_world = [(cos(neato_ang) * self.target_base_link[0] - sin(neato_ang) * self.target_base_link[1]) + neato_pos[0],
+                                 (sin(neato_ang) * self.target_base_link[0] + cos(neato_ang) * self.target_base_link[1]) + neato_pos[1]]
 
         # convert world target from world to base_link for calculations
         target_base_link = [cos(-neato_ang) * (self.target_world[0] - neato_pos[0]) - sin(-neato_ang) * (self.target_world[1] - neato_pos[1]),
@@ -133,10 +134,11 @@ class ObstacleAvoiderNode(Node):
                 self.max_field_dist * sin(target_angle)
 
     def mark_goal(self):
-        self.goal_marker.pose.position.x = self.target_odom[0]
-        self.goal_marker.pose.position.y = self.target_odom[1]
-        self.goal_marker.pose.position.z = 0.0
-        self.goal_pub.publish(self.goal_marker)
+        if self.target_world is not None:
+            self.goal_marker.pose.position.x = self.target_world[0]
+            self.goal_marker.pose.position.y = self.target_world[1]
+            self.goal_marker.pose.position.z = 0.0
+            self.goal_pub.publish(self.goal_marker)
 
     def process_bump(self, bump_data):
         if bump_data.left_front or bump_data.right_front or bump_data.left_side or bump_data.right_side:
