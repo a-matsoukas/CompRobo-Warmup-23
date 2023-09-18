@@ -3,6 +3,7 @@ from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 from neato2_interfaces.msg import Bump
+from visualization_msgs.msg import Marker
 from nav_msgs.msg import Odometry
 from .angle_helpers import euler_from_quaternion
 from math import pi, sin, cos, atan2, degrees, radians, sqrt, isinf
@@ -16,15 +17,27 @@ class ObstacleAvoiderNode(Node):
             LaserScan, 'scan', self.process_data, 10)
         self.odom_sub = self.create_subscription(
             Odometry, 'odom', self.update_attract_forces, 10)
+        self.goal_pub = self.create_publisher(Marker, 'marker', 10)
         self.odom_pub = self.create_publisher(Odometry, 'odom', 10)
         self.create_subscription(Bump, 'bump', self.process_bump, 10)
 
         self.estop = False
 
         # neato target in odom frame -- set by user
-        self.target_odom = [5.0, 0.0]
+        self.target_odom = [0.0, -2.0]
         # neato target in world frame -- to be set by program
         self.target_world = None
+
+        self.goal_marker = Marker()
+        self.goal_marker.header.frame_id = 'odom'
+        self.goal_marker.type = 3
+        self.goal_marker.scale.x = 0.25
+        self.goal_marker.scale.y = 0.25
+        self.goal_marker.scale.z = 1.0
+        self.goal_marker.color.a = 1.0
+        self.goal_marker.color.r = 0.0
+        self.goal_marker.color.g = 1.0
+        self.goal_marker.color.b = 0.0
 
         self.max_field_dist = 2.0
         self.alpha = .75
@@ -49,6 +62,7 @@ class ObstacleAvoiderNode(Node):
             msg = Twist()
             msg.linear.x = min(self.set_vel, .1)
             msg.angular.z = self.base_ang_vel * (self.set_ang / 180.0)
+            self.mark_goal()
             self.velocity_pub.publish(msg)
 
         else:
@@ -82,29 +96,27 @@ class ObstacleAvoiderNode(Node):
         self.delta_y_repel = delta_y
 
     def update_attract_forces(self, odom_data):
-        odom_pos = [odom_data.pose.pose.position.x,
-                    odom_data.pose.pose.position.y]
-        odom_ang = euler_from_quaternion(odom_data.pose.pose.orientation.x, odom_data.pose.pose.orientation.y,
-                                         odom_data.pose.pose.orientation.z, odom_data.pose.pose.orientation.w)[2]
+        neato_pos = [odom_data.pose.pose.position.x,
+                     odom_data.pose.pose.position.y]
+        neato_ang = euler_from_quaternion(odom_data.pose.pose.orientation.x, odom_data.pose.pose.orientation.y,
+                                          odom_data.pose.pose.orientation.z, odom_data.pose.pose.orientation.w)[2]
 
         # if no world target, set based on goal in odom
         # this will allow the target to stay fixed as neato moves
         if self.target_world is None:
-            self.target_world = [(cos(odom_ang) * self.target_odom[0] - sin(odom_ang) * self.target_odom[1]) + odom_pos[0],
-                                 (sin(odom_ang) * self.target_odom[0] + cos(odom_ang) * self.target_odom[1]) + odom_pos[1]]
+            self.target_world = [(cos(neato_ang) * self.target_odom[0] - sin(neato_ang) * self.target_odom[1]) + neato_pos[0],
+                                 (sin(neato_ang) * self.target_odom[0] + cos(neato_ang) * self.target_odom[1]) + neato_pos[1]]
 
-        # convert world target from world to odom for calculations
-        target_odom_moving = [cos(-odom_ang) * (self.target_world[0] - odom_pos[0]) - sin(-odom_ang) * (self.target_world[1] - odom_pos[1]),
-                              sin(-odom_ang) * (self.target_world[0] - odom_pos[0]) + cos(-odom_ang) * (self.target_world[1] - odom_pos[1])]
+        # convert world target from world to base_link for calculations
+        target_base_link = [cos(-neato_ang) * (self.target_world[0] - neato_pos[0]) - sin(-neato_ang) * (self.target_world[1] - neato_pos[1]),
+                            sin(-neato_ang) * (self.target_world[0] - neato_pos[0]) + cos(-neato_ang) * (self.target_world[1] - neato_pos[1])]
 
         # calculate distance and angle
         target_dis = sqrt(
-            (target_odom_moving[0])**2 + (target_odom_moving[1])**2)
-        target_angle = atan2(target_odom_moving[1], target_odom_moving[0])
+            (target_base_link[0])**2 + (target_base_link[1])**2)
+        target_angle = atan2(target_base_link[1], target_base_link[0])
 
-        self.t_dis = target_dis
-        self.t_ang = target_angle
-        print("Polar Coords of Target", self.t_dis, degrees(self.t_ang))
+        print("Polar Coords of Target", target_dis, degrees(target_angle))
 
         # update delta_x and delta_y
         if target_dis < 0.5:
@@ -119,6 +131,12 @@ class ObstacleAvoiderNode(Node):
                 self.max_field_dist * cos(target_angle)
             self.delta_y_attract = self.alpha * \
                 self.max_field_dist * sin(target_angle)
+
+    def mark_goal(self):
+        self.goal_marker.pose.position.x = self.target_odom[0]
+        self.goal_marker.pose.position.y = self.target_odom[1]
+        self.goal_marker.pose.position.z = 0.0
+        self.goal_pub.publish(self.goal_marker)
 
     def process_bump(self, bump_data):
         if bump_data.left_front or bump_data.right_front or bump_data.left_side or bump_data.right_side:
