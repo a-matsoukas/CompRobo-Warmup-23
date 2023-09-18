@@ -43,6 +43,7 @@ class WallFollowerNode(Node):
             msg = Twist()
             msg.linear.x = 0.25
             msg.angular.z = self.base_ang_vel * ((self.theta1 - 45) / 45)
+            self.wall_vis()
             self.velocity_pub.publish(msg)
         else:
             self.stop_moving()
@@ -53,6 +54,7 @@ class WallFollowerNode(Node):
                 225, 230, 235, 240, 245, 250, 255, 260, 265]
 
         res = []
+        wall_points = []
         # iterate through and calculate the angle with the wall
         for ang in angs:
             x = scan_data.ranges[ang]
@@ -62,11 +64,11 @@ class WallFollowerNode(Node):
                     atan(x / y))
                 # account for difference in angles
                 res.append(theta - 225 + ang)
-                self.wall_points_odom += [self.create_point(self.polar_to_cart(
+                wall_points += [self.create_point(self.polar_to_cart(
                     x, ang)), self.create_point(self.polar_to_cart(y, ang + 90))]
 
-        print(self.wall_points_odom)
-        self.wall_vis()
+        self.wall_points_odom = wall_points
+
         self.theta1 = None if len(res) == 0 else mean(res)
         print(self.theta1)
 
@@ -88,7 +90,6 @@ class WallFollowerNode(Node):
         return pt
 
     def wall_vis(self):
-        self.wall_marker.action = 0
         self.wall_marker.points = self.wall_points_odom
         self.marker_pub.publish(self.wall_marker)
 
