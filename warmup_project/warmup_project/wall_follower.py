@@ -25,6 +25,17 @@ class WallFollowerNode(Node):
 
         self.wall_points_odom = []
 
+        self.wall_marker = Marker()
+        self.wall_marker.header.frame_id = 'base_link'
+        self.wall_marker.type = 6
+        self.wall_marker.scale.x = .25
+        self.wall_marker.scale.y = .25
+        self.wall_marker.scale.z = .25
+        self.wall_marker.color.a = 1.0
+        self.wall_marker.color.r = 0.0
+        self.wall_marker.color.g = 1.0
+        self.wall_marker.color.b = 0.0
+
         self.create_timer(.1, self.run_loop)
 
     def run_loop(self):
@@ -51,8 +62,8 @@ class WallFollowerNode(Node):
                     atan(x / y))
                 # account for difference in angles
                 res.append(theta - 225 + ang)
-                self.wall_points_odom.append(
-                    self.create_point(self.polar_to_cart(x, ang)))
+                self.wall_points_odom += [self.create_point(self.polar_to_cart(
+                    x, ang)), self.create_point(self.polar_to_cart(y, ang + 90))]
 
         print(self.wall_points_odom)
         self.wall_vis()
@@ -77,18 +88,9 @@ class WallFollowerNode(Node):
         return pt
 
     def wall_vis(self):
-        msg = Marker()
-        msg.header.frame_id = 'odom'
-        msg.type = 6
-        msg.scale.x = .25
-        msg.scale.y = .25
-        msg.scale.z = .25
-        msg.color.a = 1.0
-        msg.color.r = 0.0
-        msg.color.g = 1.0
-        msg.color.b = 0.0
-        msg.points = self.wall_points_odom
-        self.marker_pub.publish(msg)
+        self.wall_marker.action = 0
+        self.wall_marker.points = self.wall_points_odom
+        self.marker_pub.publish(self.wall_marker)
 
     def polar_to_cart(self, rad, theta):
         x = rad * cos(radians(theta))
