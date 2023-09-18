@@ -23,7 +23,7 @@ class PersonFollowerNode(Node):
         self.target_dis = None
 
         self.target_pt = Marker()
-        self.target_pt.header.frame_id = 'odom'
+        self.target_pt.header.frame_id = 'base_link'
         self.target_pt.type = 3
         self.target_pt.scale.x = 0.25
         self.target_pt.scale.y = 0.25
