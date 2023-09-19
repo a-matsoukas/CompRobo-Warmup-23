@@ -280,7 +280,9 @@ The arrows are labeled with the stimulus required to change states. The way to u
 
 ## Code Structure
 
-- How was your code structured? Make sure to include a sufficient detail about the object-oriented structure you used for your project.
+I tried to make my code as modular as possible. Each behavior described above was implemented as a ROS node. The attributes of the node were variables that needed to be accessed my multiple methods, or initializations of publishers, subsscribers, or objects that only need to happen once, and I attempted to have each method do only one thing.
+
+To make the code more readable, I made sure to include comments about what each variable or method does. Additionally, I gave variables and methods descriptive names and abstracted as much code as possible out of the run loop to avoid having to parse large chunks of code.
 
 ## Challenges
 
