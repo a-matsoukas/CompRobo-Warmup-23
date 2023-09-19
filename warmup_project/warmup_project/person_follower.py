@@ -18,7 +18,8 @@ class PersonFollowerNode(Node):
             LaserScan, 'scan', self.process_data, 10)
         self.marker_pub = self.create_publisher(
             Marker, 'marker', 10)
-        self.create_subscription(Bump, 'bump', self.process_bump, 10)
+        self.bump_sub = self.create_subscription(
+            Bump, 'bump', self.process_bump, 10)
 
         # will stop when True
         self.estop = False

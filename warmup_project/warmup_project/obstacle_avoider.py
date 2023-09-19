@@ -28,7 +28,8 @@ class ObstacleAvoiderNode(Node):
         self.goal_pub = self.create_publisher(Marker, 'marker', 10)
 
         # creata subscription to bump data (for estop)
-        self.create_subscription(Bump, 'bump', self.process_bump, 10)
+        self.bump_sub = self.create_subscription(
+            Bump, 'bump', self.process_bump, 10)
 
         # neato will stop if True
         self.estop = False
