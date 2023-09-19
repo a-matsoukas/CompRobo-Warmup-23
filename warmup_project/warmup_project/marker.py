@@ -6,13 +6,18 @@ from visualization_msgs.msg import Marker
 class MarkerNode(Node):
     def __init__(self):
         super().__init__('marker')
+
+        # create a publisher for the marker
         self.marker_pub = self.create_publisher(Marker, 'marker', 10)
 
+        # set up a run loop
         self.create_timer(.1, self.run_loop)
 
     def run_loop(self):
+        # initialize marker object
         marker = Marker()
 
+        # set marker properties
         marker.header.frame_id = 'odom'
 
         marker.type = Marker.SPHERE
@@ -30,6 +35,7 @@ class MarkerNode(Node):
         marker.color.g = 1.0
         marker.color.b = 0.0
 
+        # publish marker
         self.marker_pub.publish(marker)
 
 
