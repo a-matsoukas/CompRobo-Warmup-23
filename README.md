@@ -230,11 +230,42 @@ The toughest part of implementing this behavior was managing the issue described
 
 #### Objective
 
+The objective of this behavior is to have the neato drive towards a set goal, while avoiding obstacles that might be in its way. For example, if its goal is behind an obstacle, the neato should be able to drive around the obstacle to reach the goal. The primary tool used in this implementation is the neato's lidar sensor.
+
 #### Approach
+
+The approach taken by this implementation is using a potential field to guide the neato.
+
+<figure
+    style=
+        "display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width:60%;"
+>
+    <img 
+        src="./Diagrams/obstacle_avoider_diagram.jpg"
+        alt="Wall Extra Measurements"
+    >
+</figure>
+
+At a high level, the goal exerts an attractive force on the neato, causing it to drive towards the goal; the obstacles exert a repulsive force on the neato, causing it to drive away from them. The sum of forces on the neato can be mapped to every point on the plane, creating a potential field. If the neato follows the direction of the potential field as it drives, it should make its way to the goal, due to its attracive nature. The implementation of this algorithm was strongly influenced by [Michael A. Goodrich's `Potential Fields Tutorial`](https://phoenix.goucher.edu/~jillz/cs325_robotics/goodrich_potential_fields.pdf).
+
+This implementation treats the goal as a single point, provided to the neato as an ordered pair in its coordinate frame, and each of the data points collected on the neato's lidar are treated as obstacles with a radius of 0.
+
+Because each obstacle is in the form of polar coordinates, the repulsive force on the neato from each obstacle is broken down into its x and y components in the neato's coordinate frame. The magnitude of the force is scaled in proportion to the distance the neato is from the obstacle (the force increases in magnitude the closer the neato gets), as well as with a scaling factor, `β`, and its direction is always away from the obstacle. The attractive force on the neato is calculated the same way, but the attractive force always points towards the goal and increases in magnitude as the neato gets farther away and includes a scaling factor, `α`.
+
+The net force on the neato is expressed as the sum of repulsive and attractive forces in the x-direction and the sum of the repulsive and attractive forces in the y-direction. This vector is converted back into polar coordinates, where its magnitude is used to scale the neato's linear velocity, and its angle is used to scale the neato's angular velocity. The neato drives in the direction of the angle, with its velocity proportional to the angle and distance to the target. Thus, the neato always attempts to drive in the direction of the net force acting on it.
 
 #### Limitations
 
+The most important limitation is that the neato behaves very unintuitively in tight areas with walls, tables, chairs, etc. This is because the goal is only a single point, while the neato interprets each point on its lidar scan as an obstacle; therefore, it is possible for the repulsive forces from a wall to completely overpower the neato and have it crash into a much smaller obstacle or drive completely away from the goal. The best way to mitigate this issue is to make use of `α` and `β`. By increasing the strength of the goal and decreasing the strength of the obstacles, the neato will be less likely to make irrational decision. Additionally, I had success with limiting the effective range of obstacles, so that they only act on the neato when they're very close.
+
 #### Tricky Decisions
+
+The biggest implementation challenge I encountered was translating the mathematical model in the paper into functional code. The potential field would have worked a lot better if the lidar scan data was fit to shapes, and each shape acted as one obstacle with some radius; however, in the interest of time, I chose the simplest potential field approach. Furthermore, because the paper assumed the obstacles had a radius, while my obstacles were just points, I had to deviate from the tutorial slightly in how repulsive forces were calculated.
+
+Additionally, I wanted to have the neato be able to move to a goal specified in its own coordinate frame. Because of this, I had to work with the neato's odometry to determine how far it had traveled and update its relative location to the goal. This was done by taking the provided target in the neato's coordinate frame and converting it to the global frame right at the beginning so that it stays fixed as the neato moves.
 
 #### Results
 
