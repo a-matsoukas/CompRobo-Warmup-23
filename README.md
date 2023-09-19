@@ -294,7 +294,12 @@ Any other challenges were related to debugging algorithms and taking into accoun
 
 ## Future Improvements
 
-- What would you do to improve your project if you had more time?
+The improvements that I would like to make in the future are all related to the limitations of the behaviors I described above:
+
+- Have the wall follower be able to detect and follow the wall from any orientation.
+- Have the person follower be able to distinguish between chairs, tables, walls, ect. and pick up on only a person's feet.
+- Improve the accuracy of drive square using the neato's odometry.
+- Make the neato's obstacle avoidance more robust, maybe by looking into the RANSAC algorithm to fit shapes to the lidar data.
 
 ## Key Takeaways
 
