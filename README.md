@@ -6,6 +6,25 @@ Professor: Paul Ruvolo
 
 ## Project Overview
 
+This project is a warmup project for A Computational Introduction to Robotics at Olin College of Engineering.
+
+The purpose of this project is to gain familiarity with ROS by implementing each of the behaviors in the following section on a Neato Botvac, pictured below.
+
+<figure
+    style=
+        "display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width:60%;"
+>
+    <img 
+        src="./Diagrams/neato.webp"
+        alt="Wall Follower Diagram"
+    >
+</figure>
+
+The front of the neato is the flat face. The neato's coordinate system, also called `base_link`, has a positive x axis pointing towards the front of the neato and a positive y axis pointing to the neato's left. The origin is centered on the neato.
+
 ## Behaviors
 
 ### Robot Teleop
