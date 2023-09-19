@@ -11,12 +11,21 @@ from math import pi
 class TeleopNode(Node):
     def __init__(self):
         super().__init__('teleop')
+
+        # given attributes to help capture key presses
         self.settings = termios.tcgetattr(sys.stdin)
         self.key = None
+
+        # create publisher for neatos velocity
         self.velocity_pub = self.create_publisher(Twist, 'cmd_vel', 10)
+
+        # set up run loop
         self.create_timer(.1, self.run_loop)
 
     def getKey(self):
+        """
+        Given function for capturing key presses
+        """
         tty.setraw(sys.stdin.fileno())
         select.select([sys.stdin], [], [], 0)
         key = sys.stdin.read(1)
@@ -24,13 +33,19 @@ class TeleopNode(Node):
         return key
 
     def run_loop(self):
-        # How to fix this so you only need to hit Ctrl-c once to exit??
+        # continue only if Ctrl+c hasn't been pressed
         if self.key != '\x03':
+
+            # capture pressed key
             self.key = self.getKey()
+
+            # initialize Twist object
             direction = Twist()
 
             # based on a wheel diameter of .2m, and a max wheel velocity of .3 m/s,
             # the max angular velocity is 6pi rad/sec
+
+            # if the key is in the following set, perform a given behavior
             if self.key in ['i', 'k', ',', 'j', 'l', 'u', 'o', 'm', '.']:
                 if self.key == 'i':
                     direction.linear.x = 0.3
@@ -55,6 +70,7 @@ class TeleopNode(Node):
                     direction.linear.x = -0.3
                     direction.angular.z = 0.5 * pi
 
+                # publish velocity
                 self.velocity_pub.publish(direction)
 
 
