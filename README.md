@@ -284,7 +284,13 @@ The arrows are labeled with the stimulus required to change states. The way to u
 
 ## Challenges
 
-- What if any challenges did you face along the way?
+As this was my first time working with ROS, the biggest challenges I had were primarily interfacing with the neato and having it respond to its environment the way I intend it to. Part of this was learning how to write good, modular code that can be used in different places and also allows for easier debugging.
+
+On the same theme, I found it hard to find a balance of testing in the gazebo simulator versus testing in real life. The physical neato almost never behaves the way it does in simulator, which became frustrating at times. The solution I found to this was to use the simulator very early on in catching algorithmic and implementation bugs and to fine tune the program completely with the neato to ensure that it works in real life.
+
+Furthermore, I had some challenges working with rviz2. I think that the biggest hurdle was working with the different reference frames (base_link, odom, world) and making sure that I am plotting my visuals in the appropriate reference frame. Anything that I wanted to move with the neato had to be in its coordinate system, but things like fixed targets needed to be in fixed coordinate frames.
+
+Any other challenges were related to debugging algorithms and taking into account the unreliability of the lidar scanner. For this, I found that taking as many measurements as possible and printing sensor information to the command line were the best solutions to working through bugs.
 
 ## Future Improvements
 
