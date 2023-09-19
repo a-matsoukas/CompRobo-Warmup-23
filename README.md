@@ -303,4 +303,14 @@ The improvements that I would like to make in the future are all related to the 
 
 ## Key Takeaways
 
-- What are the key takeaways from this assignment for future robotic programming projects? For each takeaway, provide a sentence or two of elaboration.
+- Debugging is a lot easier when you understand the flow of information in your program.
+
+  When I was working with sensor data and using it to calculate some values, every time I manipulated the data, I printed the result to the command line. This way, I can sanity-check that each step of the process is working correctly by verifying the numbers look about right and that they are in the format that I intended.
+
+- Before starting to code, break down and visualize the problem and come up with an approach.
+
+  For each behavior, I found it helpful to sketch diagrams about possible scenarios the neato could find itself in and how it should react in those situations. This way, the problem is broken into smaller pieces, which often line up with individual functions.
+
+- Don't work alone on CompRobo projects!
+
+  I chose to work alone on this project because it was my first time working with ROS, and I wanted to make sure I had a solid grasp of the concepts before moving on to harder projects. I think this project was a great learning experience, and I feel much more comfortable with working with ROS; however, it was a lot of work for only one person and consumed a lot more of my time than I would have liked.
