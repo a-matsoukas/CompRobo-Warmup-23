@@ -19,7 +19,7 @@ The purpose of this project is to gain familiarity with ROS by implementing each
 >
     <img 
         src="./Diagrams/neato.webp"
-        alt="Wall Follower Diagram"
+        alt="Neato Image"
     >
 </figure>
 
@@ -46,7 +46,7 @@ The approach taken to complete this behavior was to first collect user input fro
 >
     <img 
         src="./Diagrams/teleop_diagram.jpg"
-        alt="Wall Follower Diagram"
+        alt="Teleop Diagram"
     >
 </figure>
 
@@ -59,8 +59,6 @@ I think the main limitation of this implementation is that the neato's linear an
 #### Tricky Decisions
 
 The biggest challenge of this behavior was determining a logical way to map behaviors to keystrokes. Because the neato cannot move linearly in its `y` plane, the keystrokes corresponding to those directions turn the neato in place. All of the diagonal keystrokes drive the neato in an arc towards the corresponding direction. I think this was the most intuitive was to map the motions, and I also modeled this off of the `teleop_twist_keyboard` node.
-
-#### Results
 
 ### Driving in a Square
 
@@ -79,7 +77,7 @@ The goal of this behavior is to have the neato drive in a 1m x 1m square.
 >
     <img 
         src="./Diagrams/drive_square_diagram.jpg"
-        alt="Wall Follower Diagram"
+        alt="Drive Square Diagram"
     >
 </figure>
 
@@ -106,6 +104,19 @@ There is a limitation to using timing as a method of tracking turn angle and tra
 This implementation went fairly smoothly; there were no real tricky decisions that I came across during implementation.
 
 #### Results
+
+<figure
+    style=
+        "display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width:60%;"
+>
+    <img 
+        src="./GIFs/drive_square.gif"
+        alt="Drive Square Gif"
+    >
+</figure>
 
 ### Wall Following
 
@@ -186,6 +197,19 @@ This method allows for redundancy by calculating `θ` multiple times using diffe
 
 #### Results
 
+<figure
+    style=
+        "display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width:60%;"
+>
+    <img 
+        src="./GIFs/wall_follower.gif"
+        alt="Wall Follower Gif"
+    >
+</figure>
+
 ### Person Following
 
 #### Objective
@@ -203,7 +227,7 @@ The objective of this approach is to have the neato follow a person that enters 
 >
     <img 
         src="./Diagrams/person_follower_diagram.jpg"
-        alt="Wall Extra Measurements"
+        alt="Person Follower Diagram"
     >
 </figure>
 
@@ -218,7 +242,7 @@ The neato's tracking region is defined by an angle `θ` from the neato's 0° and
 >
     <img 
         src="./Diagrams/person_follower_centroid.jpg"
-        alt="Wall Extra Measurements"
+        alt="Person Follower Centroid"
     >
 </figure>
 
@@ -233,6 +257,19 @@ The biggest limitation of this algorithm is what happens if there are multiple o
 The toughest part of implementing this behavior was managing the issue described in the previous section. One solution I found to mitigate it a little bit was to limit the angle and radius of the tracking region, so that it doesn't pick up on extranious objects. This worked fairly decently, but also means that the person needs to be very close to the neato to be followed.
 
 #### Results
+
+<figure
+    style=
+        "display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width:60%;"
+>
+    <img 
+        src="./GIFs/person_follower.gif"
+        alt="Person Follower Gif"
+    >
+</figure>
 
 ### Obstacle Avoidance
 
@@ -253,7 +290,7 @@ The approach taken by this implementation is using a potential field to guide th
 >
     <img 
         src="./Diagrams/obstacle_avoider_diagram.jpg"
-        alt="Wall Extra Measurements"
+        alt="Obstacle Avoider Diagram"
     >
 </figure>
 
@@ -277,7 +314,24 @@ Additionally, I wanted to have the neato be able to move to a goal specified in 
 
 #### Results
 
+In the animation below, the neato is trying to get to the point (0, -2) in its coordinate frame. It stops once it is within a certain range of its target.
+
+<figure
+    style=
+        "display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width:60%;"
+>
+    <img 
+        src="./GIFs/obstacle_avoider.gif"
+        alt="Obstacle Avoider Gif"
+    >
+</figure>
+
 ## Finite State Controller
+
+### Approach
 
 The overall behavior of my finite state controller was to alternate between person following and driving in a square. When there is a person or object in the neato's tracking region, it should begin following that person; however, if the neato detects nothing in its tracking region, it should begin following a 1 meter x 1 meter square. These are the same behaviors that are described above.
 
@@ -290,12 +344,27 @@ The overall behavior of my finite state controller was to alternate between pers
 >
     <img 
         src="./Diagrams/finite_state_controller_diagram.jpg"
-        alt="Wall Extra Measurements"
+        alt="Finite State Controller Diagram"
     >
 </figure>
 
 As shown in the diagram above, the states were as follows: `Initialize`, `Person Following`, `Drive Square`, and `Emergency Stop`.
 The arrows are labeled with the stimulus required to change states. The way to understand if there is something in the tracking region was simply to look at the lidar scan data for values within the front portion of the neato within the specified range. Additionally, all states have a path to `Emergency Stop`, which has no paths out, as the neato should stop moving if it hits something. The `Initialize` only has paths out of it because the neato should primarily toggle between the two behaviors.
+
+### Results
+
+<figure
+    style=
+        "display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width:60%;"
+>
+    <img 
+        src="./GIFs/finite_state_controller.gif"
+        alt="Finite State Controller Gif"
+    >
+</figure>
 
 ## Code Structure
 
