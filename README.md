@@ -4,17 +4,6 @@ Course: A Computational Introduction to Robotics, Spring 2023
 
 Professor: Paul Ruvolo
 
-## Directions
-
-In your github repository, create a markdown file called README.md to serve as documentation for your project. Your writeup should answer the following questions. We expect this writeup to be done in such a way that you are proud to include it as part of your professional portfolio. As such, please make sure to write the report so that it is understandable to an external audience. Make sure to add pictures to your report, links to Youtube videos, embedded animated Gifs (these can be recorded with the tool peek).
-
-- For each behavior, describe the problem at a high-level. Include any relevant diagrams that help explain your approach. Discuss your strategy at a high-level and include any tricky decisions that had to be made to realize a successful implementation.
-- For the finite state controller, what was the overall behavior. What were the states? What did the robot do in each state? How did you combine and how did you detect when to transition between behaviors? Consider including a state transition diagram in your writeup.
-- How was your code structured? Make sure to include a sufficient detail about the object-oriented structure you used for your project.
-- What if any challenges did you face along the way?
-- What would you do to improve your project if you had more time?
-- What are the key takeaways from this assignment for future robotic programming projects? For each takeaway, provide a sentence or two of elaboration.
-
 ## Project Overview
 
 ## Behaviors
@@ -271,7 +260,23 @@ Additionally, I wanted to have the neato be able to move to a goal specified in 
 
 ## Finite State Controller
 
-- For the finite state controller, what was the overall behavior. What were the states? What did the robot do in each state? How did you combine and how did you detect when to transition between behaviors? Consider including a state transition diagram in your writeup.
+The overall behavior of my finite state controller was to alternate between person following and driving in a square. When there is a person or object in the neato's tracking region, it should begin following that person; however, if the neato detects nothing in its tracking region, it should begin following a 1 meter x 1 meter square. These are the same behaviors that are described above.
+
+<figure
+    style=
+        "display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width:60%;"
+>
+    <img 
+        src="./Diagrams/finite_state_controller_diagram.jpg"
+        alt="Wall Extra Measurements"
+    >
+</figure>
+
+As shown in the diagram above, the states were as follows: `Initialize`, `Person Following`, `Drive Square`, and `Emergency Stop`.
+The arrows are labeled with the stimulus required to change states. The way to understand if there is something in the tracking region was simply to look at the lidar scan data for values within the front portion of the neato within the specified range. Additionally, all states have a path to `Emergency Stop`, which has no paths out, as the neato should stop moving if it hits something. The `Initialize` only has paths out of it because the neato should primarily toggle between the two behaviors.
 
 ## Code Structure
 
