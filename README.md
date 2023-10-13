@@ -1,6 +1,6 @@
 # Warmup Project
 
-Course: A Computational Introduction to Robotics, Spring 2023
+Course: A Computational Introduction to Robotics, Fall 2023
 
 Professor: Paul Ruvolo
 
